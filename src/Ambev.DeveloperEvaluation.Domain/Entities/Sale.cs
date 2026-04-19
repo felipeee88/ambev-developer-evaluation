@@ -50,6 +50,29 @@ public class Sale : BaseEntity
     }
 
     /// <summary>
+    /// Replaces the header fields (sale number, date, customer, branch) and
+    /// enqueues <see cref="SaleModifiedEvent"/>. Items are not touched by this
+    /// method — use dedicated item commands.
+    /// </summary>
+    public void ChangeHeader(string saleNumber, DateTime saleDate, CustomerInfo customer, BranchInfo branch)
+    {
+        EnsureNotCancelled();
+        if (string.IsNullOrWhiteSpace(saleNumber))
+            throw new DomainException("SaleNumber is required.");
+        if (customer is null)
+            throw new DomainException("Customer is required.");
+        if (branch is null)
+            throw new DomainException("Branch is required.");
+
+        SaleNumber = saleNumber;
+        SaleDate = saleDate;
+        Customer = customer;
+        Branch = branch;
+
+        AddDomainEvent(new SaleModifiedEvent(Id, SaleNumber));
+    }
+
+    /// <summary>
     /// Adds a new item to the sale and recalculates the total.
     /// </summary>
     public SaleItem AddItem(ProductInfo product, int quantity, decimal unitPrice)
