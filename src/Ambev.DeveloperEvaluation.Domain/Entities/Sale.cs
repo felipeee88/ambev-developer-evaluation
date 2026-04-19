@@ -107,9 +107,6 @@ public class Sale : BaseEntity
     public void Recalculate()
         => TotalAmount = _items.Where(i => !i.Cancelled).Sum(i => i.TotalAmount);
 
-    public void MarkAsModified()
-        => AddDomainEvent(new SaleModifiedEvent(Id, SaleNumber));
-
     public void ClearDomainEvents() => _domainEvents.Clear();
 
     private void AddDomainEvent(INotification evt) => _domainEvents.Add(evt);

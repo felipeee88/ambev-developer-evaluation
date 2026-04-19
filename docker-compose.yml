@@ -27,7 +27,14 @@ services:
       POSTGRES_USER: developer
       POSTGRES_PASSWORD: ev@luAt10n
     ports:
-      - "5432"
+      - "55432:5432"
+    volumes:
+      - ambev_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U developer -d developer_evaluation"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
   ambev.developerevaluation.nosql:
@@ -40,11 +47,14 @@ services:
       - "27017"
 
   ambev.developerevaluation.cache:
-    container_name: ambev_developer_evaluation_cache 
-    image: redis:7.4.1-alpine     
+    container_name: ambev_developer_evaluation_cache
+    image: redis:7.4.1-alpine
     command: redis-server --requirepass ev@luAt10n
     environment:
        MONGO_INITDB_ROOT_USERNAME: developer
        MONGO_INITDB_ROOT_PASSWORD: ev@luAt10n
     ports:
        - "6379"
+
+volumes:
+  ambev_pgdata:
